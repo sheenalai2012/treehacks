@@ -151,7 +151,7 @@ function calculateDistance(coord1, coord2) {
     return(c * r);
 };
   
-  function priceToInt(price) {
+function priceToInt(price) {
     if (price === '$') return 1;
     if (price === '$$') return 2;
     if (price === '$$$') return 3;
