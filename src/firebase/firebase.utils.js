@@ -116,6 +116,9 @@ export const getMatches = async (currentUser) => {
     }
 };
 
+export const 
+
+
 function calculateDistance(coord1, coord2) {
     // Implement distance calculation using latitudes and longitudes
     // named toRadians which converts from
