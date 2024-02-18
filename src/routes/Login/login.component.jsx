@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { logInWithEmailAndPassword, registerWithEmailAndPassword } from "../../../backend_src/firebase/firebase.utils";
+import { logInWithEmailAndPassword, registerWithEmailAndPassword } from "../../firebase/firebase.utils";
 
 const Login = () => {
     const [loginEmail, setLoginEmail] = useState("");
