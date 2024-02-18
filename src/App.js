@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 
 import Login from './routes/Login/login.component';
-import ToDoListHome from './routes/ToDoListHome/to-do-list-home.component';
+import Home from './routes/Home/home';
 
 import './App.css';
 
@@ -17,7 +17,7 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element ={ <Login /> } />
-                    <Route exact path="/home" element ={ <ToDoListHome /> } />
+                    <Route exact path="/home" element ={ <Home /> } />
                 </Routes>
             </BrowserRouter>
         </div>
