@@ -116,7 +116,6 @@ export const getMatches = async (currentUser) => {
     }
 };
 
-export const 
 
 
 function calculateDistance(coord1, coord2) {
