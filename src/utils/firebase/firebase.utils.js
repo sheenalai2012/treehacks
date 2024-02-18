@@ -13,16 +13,14 @@ import {
     doc,
     updateDoc,
     setDoc,
+    addDoc,
+    getDocs,
+    collection,
+    query, 
+    where,
+    orderBy,
 } from "firebase/firestore";
 
-// const firebaseConfig = {
-//     apiKey: process.env.REACT_APP_API_KEY,
-//     authDomain: process.env.REACT_APP_AUTH_DOMAIN,
-//     projectId: process.env.REACT_APP_PROJECT_ID,
-//     storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
-//     messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
-//     appId: process.env.REACT_APP_APP_ID,
-// };
 
 const firebaseConfig = {
     apiKey: "AIzaSyCcohjeaTZ0bECAGXWy0q5NlOUUi_VNrgU",
@@ -44,12 +42,7 @@ export const logInWithEmailAndPassword = async (email, password) => {
 };
 
 export const registerWithEmailAndPassword = async (email, password) => {
-    const res = await createUserWithEmailAndPassword(auth, email, password);
-    const user = res.user;
-
-    await setDoc(doc(db, "to-do", email), {
-        items: [],
-    });
+    await createUserWithEmailAndPassword(auth, email, password);
 };
 
 export const getToDoList = async (email) => {
@@ -68,6 +61,15 @@ export const addToDoItem = async (currentItems, email, newItem) => {
     });
 };
 
+export const submitMatchRequest = async (request) => {
+    try {
+        const matchRequestsRef = collection(db, "matchRequests");
+        await addDoc(matchRequestsRef, request);
+    } catch (error) {
+        console.error("Error submitting match request:", error);
+    }
+};
+
 export const deleteToDoItem = async (currentItems, email, deleteItem) => {
     var newItems = currentItems;
     
@@ -80,4 +82,78 @@ export const deleteToDoItem = async (currentItems, email, deleteItem) => {
     await updateDoc(doc(db, "to-do", email), {
         items: [...newItems],
     });
+};
+
+export const getMatches = async (currentUser) => {
+    try {
+        const newUserRequest = currentUser;
+        const matchRequestsRef = collection(db, "matchRequests");
+         // Fetch all user requests
+        const snapshot = await matchRequestsRef.get();
+
+        let matches = [];
+
+        snapshot.forEach(doc => {
+        const existingUserRequest = doc.data();
+        const distance = calculateDistance(newUserRequest.location, existingUserRequest.location);
+        const commonCategories = newUserRequest.foodCategories.filter(category => existingUserRequest.foodCategories.includes(category));
+        const priceDifference = Math.abs(priceToInt(newUserRequest.price) - priceToInt(existingUserRequest.price));
+
+        matches.push({
+            ...existingUserRequest,
+            distance,
+            commonCategories: commonCategories.length,
+            priceDifference
+        });
+        });
+
+        // Sort matches by distance, common food categories, and price difference
+        matches.sort((a, b) => {
+        if (a.distance !== b.distance) return a.distance - b.distance;
+        if (a.commonCategories !== b.commonCategories) return b.commonCategories - a.commonCategories;
+        return a.priceDifference - b.priceDifference;
+        });
+
+        return matches;
+    } catch (error) {
+        console.error("Error getting matches:", error);
+        return [];
+    }
+};
+
+function calculateDistance(coord1, coord2) {
+    // Implement distance calculation using latitudes and longitudes
+    // named toRadians which converts from
+    // degrees to radians.
+    var lon1 = coord1.longitude
+    var lon2 = coord2.longitude
+    var lat1 = coord1.latitude
+    var lat2 = coord2.latitude
+    lon1 =  lon1 * Math.PI / 180;
+    lon2 = lon2 * Math.PI / 180;
+    lat1 = lat1 * Math.PI / 180;
+    lat2 = lat2 * Math.PI / 180;
+
+    // Haversine formula 
+    let dlon = lon2 - lon1; 
+    let dlat = lat2 - lat1;
+    let a = Math.pow(Math.sin(dlat / 2), 2)
+                + Math.cos(lat1) * Math.cos(lat2)
+                * Math.pow(Math.sin(dlon / 2),2);
+            
+    let c = 2 * Math.asin(Math.sqrt(a));
+
+    // Radius of earth in kilometers. Use 3956 
+    // for miles
+    let r = 6371;
+
+    // calculate the result
+    return(c * r);
+};
+  
+  function priceToInt(price) {
+    if (price === '$') return 1;
+    if (price === '$$') return 2;
+    if (price === '$$$') return 3;
+    return 4; // Default case
 };
