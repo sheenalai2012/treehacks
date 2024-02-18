@@ -1,8 +1,9 @@
-import { Button, Chip, FormControl, FormControlLabel, FormHelperText, FormLabel, Input, InputLabel, Select, Stack, Typography } from "@mui/material"
+import { Button, Chip, FormControl, FormControlLabel, FormHelperText, FormLabel, Input, InputLabel, Select, Stack, TextField, Typography } from "@mui/material"
 import { useFormControlContext } from '@mui/base/FormControl';
 
 
 import { useState } from "react";
+import { getMatches } from "../../firebase/firebase.utils";
 
 export const SelectChip = ({text, handleChange, index}) => {
     const [selected, setSelected] = useState(false);
@@ -24,6 +25,10 @@ export const MultiSelect = ({list, handleChange}) => {
 
 
 export const Request = () => {
+    const [name, setName] = useState('');
+    const handleName = (e) => {
+        setName(e.target.value);
+    }
     const [phoneNumber, setPhoneNumber] = useState(''); 
     const handlePhoneNumber = (e) => {
         setPhoneNumber(e.target.value);
@@ -67,19 +72,24 @@ export const Request = () => {
         }
     }
 
-    const handleSubmit = () => {
-        console.log(phoneNumber);
-        console.log(selectedCuisines);
-        console.log(selectedFoodTypes);
-        console.log(selectedPrices);
+    const handleSubmit = async () => {
+        console.log('hi');
+        const matches = await getMatches({
+            name,
+            phoneNumber,
+            price: Array.from(selectedPrices)[0],
+            foodCategories: Array.from(selectedFoodTypes),
+            location: ''
+        });
+        console.log(matches);
     }
 
     return (
     <FormControl>
-    <InputLabel htmlFor="phone">Phone number</InputLabel>
-    <Input id="phone" value={phoneNumber} onChange={handlePhoneNumber}/>
-    <FormHelperText>Your phone number will be shared with your matches.</FormHelperText>
-<br/>
+        <TextField variant="outlined" label='Name' value={name} onChange={handleName}/>
+        <br/>
+        <TextField variant='outlined' label='Phone number' value={phoneNumber} onChange={handlePhoneNumber}/>
+   <br/>
     <Typography variant='body' align="left">Prices</Typography>
     <MultiSelect list={priceOptions} handleChange={handlePriceSelect} />
     <br/>

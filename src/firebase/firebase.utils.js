@@ -79,10 +79,12 @@ export const deleteToDoItem = async (currentItems, email, deleteItem) => {
 
 export const getMatches = async (currentUser) => {
     try {
+        console.log('what')
         const newUserRequest = currentUser;
         const matchRequestsRef = collection(db, "matchRequests");
          // Fetch all user requests
         const snapshot = await matchRequestsRef.get();
+     
         let matches = [];
         if (snapshot.length > 0) {
             snapshot.forEach(doc => {

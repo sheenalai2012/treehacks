@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, getToDoList, addToDoItem, deleteToDoItem } from "../../utils/firebase/firebase.utils";
+import { auth, getToDoList, addToDoItem, deleteToDoItem } from "../../firebase/firebase.utils";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Button from '@mui/material/Button';
 import { Request } from "../Request/request";
