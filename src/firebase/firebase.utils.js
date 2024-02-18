@@ -20,7 +20,7 @@ import {
     where,
     orderBy,
 } from "firebase/firestore";
-
+import { getUserGeoLocation } from "../utils/utils";
   
 const firebaseConfig = {
     apiKey: "AIzaSyCcohjeaTZ0bECAGXWy0q5NlOUUi_VNrgU",
@@ -83,30 +83,31 @@ export const getMatches = async (currentUser) => {
         const matchRequestsRef = collection(db, "matchRequests");
          // Fetch all user requests
         const snapshot = await matchRequestsRef.get();
-
         let matches = [];
-
-        snapshot.forEach(doc => {
-        const existingUserRequest = doc.data();
-        const distance = calculateDistance(newUserRequest.location, existingUserRequest.location);
-        const commonCategories = newUserRequest.foodCategories.filter(category => existingUserRequest.foodCategories.includes(category));
-        const priceDifference = Math.abs(priceToInt(newUserRequest.price) - priceToInt(existingUserRequest.price));
-
-        matches.push({
-            ...existingUserRequest,
-            distance,
-            commonCategories: commonCategories.length,
-            priceDifference
-        });
-        });
-
-        // Sort matches by distance, common food categories, and price difference
-        matches.sort((a, b) => {
-        if (a.distance !== b.distance) return a.distance - b.distance;
-        if (a.commonCategories !== b.commonCategories) return b.commonCategories - a.commonCategories;
-        return a.priceDifference - b.priceDifference;
-        });
-
+        if (snapshot.length > 0) {
+            snapshot.forEach(doc => {
+            const existingUserRequest = doc.data();
+            const distance = calculateDistance(newUserRequest.location, existingUserRequest.location);
+            const commonCategories = newUserRequest.foodCategories.filter(category => existingUserRequest.foodCategories.includes(category));
+            const priceDifference = Math.abs(priceToInt(newUserRequest.price) - priceToInt(existingUserRequest.price));
+    
+            matches.push({
+                ...existingUserRequest,
+                distance,
+                commonCategories: commonCategories.length,
+                priceDifference
+            });
+            });
+    
+            // Sort matches by distance, common food categories, and price difference
+            matches.sort((a, b) => {
+            if (a.distance !== b.distance) return a.distance - b.distance;
+            if (a.commonCategories !== b.commonCategories) return b.commonCategories - a.commonCategories;
+            return a.priceDifference - b.priceDifference;
+            });
+        }
+        
+        currentUser.location = await getUserGeoLocation();
         await addDoc(matchRequestsRef, currentUser);
         return matches;
     } catch (error) {
