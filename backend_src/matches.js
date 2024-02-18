@@ -1,7 +1,7 @@
-const {getMatches} = require('./firebase/firebase.utils.js')
-const {getLocation} = require('../src/utils/utils.js')
 
-const express = require('express');
+import { getMatches } from './firebase/firebase.utils.js';
+import {getUserGeoLocation} from '../src/utils/utils.js';
+import express from 'express';
 const app = express();
 const PORT = 3005; // Change to your desired port number
 
@@ -13,7 +13,7 @@ app.post('/matches', async (req, res) => {
       // current location gets calculated here. it would be ".location"
       // to note, in req.body, currentUser.location would be set to an empty string "" prior to 
       // calculating it here 
-      currentUser.location = await getLocation();
+      currentUser.location = await getUserGeoLocation();
       const matches = await getMatches(currentUser);
       res.status(200).json(matches);
     } catch (error) {
